@@ -135,9 +135,13 @@ function agregarPlatillo(producto){
     //Limpiar html previo
     limpiarHTML();
 
-    ///Mostrar el resumen
-    actualizarResumen();
- 
+    if(cliente.pedido.length){
+         ///Mostrar el resumen
+        actualizarResumen();
+    } else {
+        mensajePedidoVacio();
+    }
+
 }
 
 function actualizarResumen(){
@@ -206,6 +210,14 @@ function actualizarResumen(){
         subtotalValor.classList.add('fw-normal');
         subtotalValor.textContent = calcularSubtotal(precio, cantidad);
 
+        //Boton para eliminar
+        const btnEliminar = document.createElement('BUTTON');
+        btnEliminar.classList.add('btn', 'btn-danger');
+        btnEliminar.textContent = 'Eliminar del Pedido';
+        btnEliminar.onclick = function(){
+             eliminarProducto(id)
+        }
+
         //Agregar valores a sus contenedores
         cantidadEl.appendChild(cantidadValor);
         precioEl.appendChild(precioValor);
@@ -216,6 +228,7 @@ function actualizarResumen(){
         lista.appendChild(cantidadEl);
         lista.appendChild(precioEl);
         lista.appendChild(subtotalEl);
+        lista.appendChild(btnEliminar);
 
         //Agregar lista al grupo principal
         grupo.appendChild(lista);
@@ -232,10 +245,40 @@ function actualizarResumen(){
 function calcularSubtotal(precio, cantidad){
     return `$ ${precio * cantidad}`;
 }
+function eliminarProducto(id){
+    const {pedido} = cliente;
+    const resultado = pedido.filter(articulo => articulo.id !== id)
+    cliente.pedido = [...resultado];
+   //Limpiar html previo
+   limpiarHTML();
+
+   if(cliente.pedido.length){
+        ///Mostrar el resumen
+        actualizarResumen();
+   } else {
+    mensajePedidoVacio();
+   }
+
+   //El producto se elimino por lo tanto regresamos a 0 en la cantidad
+   const productoEliminado = `#producto-${id}`;
+   const inputEliminado = document.querySelector(productoEliminado);
+   inputEliminado.value = 0;
+
+}
 
 function limpiarHTML(){
     const contenido = document.querySelector('#resumen .contenido');
     while(contenido.firstChild){
         contenido.removeChild(contenido.firstChild);
     }
+}
+
+function mensajePedidoVacio(){
+    const contenido = document.querySelector('#resumen .contenido');
+
+    const texto = document.createElement('P');
+    texto.classList.add('text-center');
+    texto.textContent = 'Añade los elementos del pedido'
+
+    contenido.appendChild(texto);
 }
